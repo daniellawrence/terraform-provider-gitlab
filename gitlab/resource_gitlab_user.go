@@ -24,11 +24,6 @@ func resourceGitlabUser() *schema.Resource {
 				Type:     schema.TypeString,
 				Required: true,
 			},
-			"password": {
-				Type:      schema.TypeString,
-				Required:  true,
-				Sensitive: true,
-			},
 			"email": {
 				Type:     schema.TypeString,
 				Required: true,
@@ -63,6 +58,19 @@ func resourceGitlabUser() *schema.Resource {
 				Optional: true,
 				Default:  false,
 			},
+			"external_uid": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
+			"external_provider": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
+			"reset_password": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				Default:  false,
+			},
 		},
 	}
 }
@@ -72,13 +80,17 @@ func resourceGitlabUserSetToState(d *schema.ResourceData, user *gitlab.User) {
 	d.Set("name", user.Name)
 	d.Set("can_create_group", user.CanCreateGroup)
 	d.Set("projects_limit", user.ProjectsLimit)
+	d.Set("can_create_group", user.CanCreateGroup)
+	d.Set("projects_limit", user.ProjectsLimit)
+	d.Set("external_uid", user.Identities[0].ExternUID)
+	d.Set("external_provider", user.Identities[0].Provider)
+	d.Set("is_admin", user.IsAdmin)
 }
 
 func resourceGitlabUserCreate(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*gitlab.Client)
 	options := &gitlab.CreateUserOptions{
 		Email:            gitlab.String(d.Get("email").(string)),
-		Password:         gitlab.String(d.Get("password").(string)),
 		Username:         gitlab.String(d.Get("username").(string)),
 		Name:             gitlab.String(d.Get("name").(string)),
 		ProjectsLimit:    gitlab.Int(d.Get("projects_limit").(int)),
@@ -86,6 +98,9 @@ func resourceGitlabUserCreate(d *schema.ResourceData, meta interface{}) error {
 		CanCreateGroup:   gitlab.Bool(d.Get("can_create_group").(bool)),
 		SkipConfirmation: gitlab.Bool(d.Get("skip_confirmation").(bool)),
 		External:         gitlab.Bool(d.Get("is_external").(bool)),
+		ExternUID:        gitlab.String(d.Get("external_uid").(string)),
+		Provider:         gitlab.String(d.Get("external_provider").(string)),
+		ResetPassword:    gitlab.Bool(d.Get("reset_password").(bool)),
 	}
 
 	log.Printf("[DEBUG] create gitlab user %q", *options.Username)
@@ -150,6 +165,10 @@ func resourceGitlabUserUpdate(d *schema.ResourceData, meta interface{}) error {
 
 	if d.HasChange("is_external") {
 		options.Admin = gitlab.Bool(d.Get("is_external").(bool))
+	}
+	if d.HasChange("external_uid") || d.HasChange("external_provider") {
+		options.ExternUID = gitlab.String(d.Get("external_uid").(string))
+		options.Provider = gitlab.String(d.Get("external_provider").(string))
 	}
 
 	log.Printf("[DEBUG] update gitlab user %s", d.Id())

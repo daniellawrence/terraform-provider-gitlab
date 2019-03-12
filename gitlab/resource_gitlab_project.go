@@ -165,15 +165,15 @@ func resourceGitlabProjectSetToState(d *schema.ResourceData, project *gitlab.Pro
 func resourceGitlabProjectCreate(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*gitlab.Client)
 	options := &gitlab.CreateProjectOptions{
-		Name:                             gitlab.String(d.Get("name").(string)),
-		IssuesEnabled:                    gitlab.Bool(d.Get("issues_enabled").(bool)),
-		MergeRequestsEnabled:             gitlab.Bool(d.Get("merge_requests_enabled").(bool)),
-		ApprovalsBeforeMerge:             gitlab.Int(d.Get("approvals_before_merge").(int)),
-		WikiEnabled:                      gitlab.Bool(d.Get("wiki_enabled").(bool)),
-		SnippetsEnabled:                  gitlab.Bool(d.Get("snippets_enabled").(bool)),
-		Visibility:                       stringToVisibilityLevel(d.Get("visibility_level").(string)),
-		MergeMethod:                      stringToMergeMethod(d.Get("merge_method").(string)),
-		OnlyAllowMergeIfPipelineSucceeds: gitlab.Bool(d.Get("only_allow_merge_if_pipeline_succeeds").(bool)),
+		Name:                                      gitlab.String(d.Get("name").(string)),
+		IssuesEnabled:                             gitlab.Bool(d.Get("issues_enabled").(bool)),
+		MergeRequestsEnabled:                      gitlab.Bool(d.Get("merge_requests_enabled").(bool)),
+		ApprovalsBeforeMerge:                      gitlab.Int(d.Get("approvals_before_merge").(int)),
+		WikiEnabled:                               gitlab.Bool(d.Get("wiki_enabled").(bool)),
+		SnippetsEnabled:                           gitlab.Bool(d.Get("snippets_enabled").(bool)),
+		Visibility:                                stringToVisibilityLevel(d.Get("visibility_level").(string)),
+		MergeMethod:                               stringToMergeMethod(d.Get("merge_method").(string)),
+		OnlyAllowMergeIfPipelineSucceeds:          gitlab.Bool(d.Get("only_allow_merge_if_pipeline_succeeds").(bool)),
 		OnlyAllowMergeIfAllDiscussionsAreResolved: gitlab.Bool(d.Get("only_allow_merge_if_all_discussions_are_resolved").(bool)),
 	}
 
